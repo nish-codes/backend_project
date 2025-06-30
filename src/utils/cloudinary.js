@@ -13,14 +13,14 @@ const uploadOnCloudinary = async (filepath)=>{
     if(!filepath)
         return null
    
-   const response = cloudinary.uploader.upload(filepath,{
+   const response = await cloudinary.uploader.upload(filepath,{
     resource_type : "auto"
    })
-   fs.unlinkSync(localfilepath)
+   fs.unlinkSync(filepath)
    return response
 }
    catch(err){
-    fs.unlink(filepath)
+    fs.unlinkSync(filepath)
     console.log("Error is from cloudinary")
     return null
    }

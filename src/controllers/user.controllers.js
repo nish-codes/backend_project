@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -296,4 +297,50 @@ const getChannel = asyncHandler(async(req,res)=>{
     }
     res.status(200).json(new ApiResponse(200,channel[0],"channel fetched successfully"))
 })
-export {registerUser,loginUser,logOutUser,refreshToken,changePassword,getUser,updateAccountDetails,updateAvatar,updateCoverImage,getChannel}
+const getWatchHistory = asyncHandler(async(req,res)=>{
+    const user = await User.aggregate([{
+        $match :{
+            _id : mongoose.Types.ObjectId(req.user?._id)
+        }
+    },
+    {
+        $lookup : {
+            from : "videos",
+            localField : "watchHistory",
+            foreignField : "_id",
+            as : "watchHistory",
+            pipeline:[
+                {
+                    $lookup :{
+                        from : "users",
+                        localField : "owner",
+                        foreignField : "_id",
+                        as : "owners",
+                        pipeline :[
+                            {
+                                $project : {
+                                    userName :1,
+                                    fullName :1,
+                                    avatar :1
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    $addFields : {
+                        owners : {
+                            $first : "$owners"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+])
+ if(!user.length){
+    throw new ApiError(400,"something went wrong while generating user in watch history")
+ }
+ res.status(200).json(new ApiResponse(200,user[0],"watch history retrieved successfully"))
+})
+export {registerUser,loginUser,logOutUser,refreshToken,changePassword,getUser,updateAccountDetails,updateAvatar,updateCoverImage,getChannel,getWatchHistory}

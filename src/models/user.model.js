@@ -39,14 +39,14 @@ const userSchema = new Schema({
         type : String,
 
      },
-     watchHistory : {
+     watchHistory : [{
         type : Schema.Types.ObjectId,
         ref : "Video"
-     }
+     }]
 
 },{timestamps : true})
 userSchema.pre("save",async function(next){
-    if(this.isModified(this.password)){
+    if(this.isModified("password")){
     this.password = await bcrypt.hash(this.password,10)
     }
     next()
@@ -60,7 +60,7 @@ userSchema.methods.getAccessToken = function(){
         _id : this._id,
         fullName : this.fullName,
         userName : this.userName,
-        email : this.userName
+        email : this.email
 
     },process.env.ACCESS_TOKEN_SECRET,{
         expiresIn:process.env.ACCESS_TOKEN_EXPIRY
@@ -68,6 +68,7 @@ userSchema.methods.getAccessToken = function(){
 }
 
 userSchema.methods.getRefreshToken = function(){
+   
     return jwt.sign({
         _id : this._id,
        

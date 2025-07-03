@@ -64,7 +64,7 @@ const getUserChannelSubscriber = asyncHandler(async(req,res)=>{
 })
 const getSubscribedChannel =asyncHandler(async(req,res)=>{
     const {subscriberId} = req.params
-    const subscribeTo = await Subscription.aggregate([{
+    const subscribedTo = await Subscription.aggregate([{
         $match:{
             subscriber : mongoose.Types.ObjectId(subscriberId)
         }
@@ -89,5 +89,6 @@ const getSubscribedChannel =asyncHandler(async(req,res)=>{
             newRoot :"$channels"
         }
     }])
+    res.status(200).json(new ApiResponse(200,subscribedTo,"got the channel that the user subscribed to successfully"))
 })
 export {toggleSubscription,getSubscribedChannel,getUserChannelSubscriber}

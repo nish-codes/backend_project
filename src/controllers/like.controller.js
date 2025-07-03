@@ -78,3 +78,5 @@ const getLikedVideos = asyncHandler(async(req,res)=>{
     $replaceRoot :{newRoot : "$likedVideos"}
 }])
 })
+
+export {toggleVideoLike,commentLike,getLikedVideos}
